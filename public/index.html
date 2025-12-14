@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Compiler</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div class="app-container">
+        <nav class="sidebar" id="sidebar">
+            <div class="brand">
+                <i class='bx bxs-cloud-lightning'></i>
+                <span class="logo-text">Cloud<span class="highlight">Compiler</span></span>
+                <button id="toggleSidebar" class="toggle-btn"><i class='bx bx-menu'></i></button>
+            </div>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label class="control-label">Dil Seçimi</label>
+                    <div class="custom-select">
+                        <select id="dilSecimi">
+                            <option value="python">Python 3.9</option>
+                            <option value="c">C (GCC)</option>
+                            <option value="html">Web (HTML/CSS/JS)</option>
+                        </select>
+                        <i class='bx bx-chevron-down'></i>
+                    </div>
+                </div>
+                
+                <button id="calistirBtn" class="run-btn">
+                    <i class='bx bx-play'></i>
+                    <span class="btn-text">Çalıştır</span>
+                </button>
+
+                <button id="gecmisBtn" class="history-btn">
+                    <i class='bx bx-history'></i>
+                    <span class="btn-text">Geçmiş</span>
+                </button>
+            </div>
+
+            <div class="status-indicator">
+                <span class="dot online"></span>
+                <span class="status-text">Sistem Hazır</span>
+            </div>
+
+            <div class="auth-section" id="authSection">
+                <div id="authButtons" class="auth-buttons">
+                    <button id="openLoginBtn" class="auth-btn login-btn">
+                        <i class='bx bx-log-in'></i> <span class="btn-text">Giriş</span>
+                    </button>
+                    <button id="openRegisterBtn" class="auth-btn register-btn">
+                        <i class='bx bx-user-plus'></i> <span class="btn-text">Kayıt</span>
+                    </button>
+                </div>
+
+                <div id="userInfoDisplay" class="user-info" style="display: none;">
+                    <i class='bx bxs-user-circle'></i> <span id="userNameText">Kullanıcı</span>
+                </div>
+                
+                <button id="logoutBtn" class="logout-btn" style="display: none;">
+                    <i class='bx bx-log-out'></i> <span class="btn-text">Çıkış</span>
+                </button>
+            </div>
+        </nav>
+
+        <main class="editor-area">
+            <div class="editors-container" id="editorsContainer">
+                
+                <div class="panel code-panel" id="singleEditorPanel">
+                    <div class="panel-header">
+                        <span class="panel-title"><i class='bx bx-code-alt'></i> Kaynak Kod</span>
+                        <span class="file-info" id="fileNameDisplay">main.py</span>
+                    </div>
+                    <div class="editor-wrapper">
+                        <textarea id="kodAlani"></textarea>
+                    </div>
+                </div>
+
+                <div class="web-editors-grid hidden" id="webEditorsPanel">
+                    <div class="panel code-panel">
+                        <div class="panel-header html-header"><span class="panel-title"><i class='bx bxl-html5'></i> HTML</span></div>
+                        <div class="editor-wrapper"><textarea id="htmlEditor"></textarea></div>
+                    </div>
+                    <div class="panel code-panel">
+                        <div class="panel-header css-header"><span class="panel-title"><i class='bx bxl-css3'></i> CSS</span></div>
+                        <div class="editor-wrapper"><textarea id="cssEditor"></textarea></div>
+                    </div>
+                    <div class="panel code-panel">
+                        <div class="panel-header js-header"><span class="panel-title"><i class='bx bxl-javascript'></i> JS</span></div>
+                        <div class="editor-wrapper"><textarea id="jsEditor"></textarea></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="resizer" id="dragMe"></div>
+
+            <div class="panel output-panel" id="outputPanel">
+                <div class="panel-header">
+                    <span class="panel-title">
+                        <i id="outputIcon" class='bx bx-terminal'></i> 
+                        <span id="outputTitle">Terminal</span>
+                    </span>
+                    <div class="output-controls">
+                         <button class="clear-btn hidden" id="openNewTabBtn" title="Yeni Sekmede Aç"><i class='bx bx-link-external'></i></button>
+                         <button class="clear-btn" id="temizleBtn" title="Temizle"><i class='bx bx-trash'></i></button>
+                    </div>
+                </div>
+                
+                <div class="output-content">
+                    <div id="terminalKutusu" class="terminal">
+                        <div class="terminal-welcome">
+                            <i class='bx bx-terminal'></i>
+                            <p>Çıktı burada görüntülenecektir...</p>
+                        </div>
+                    </div>
+                    <iframe id="webOnizleme" class="hidden"></iframe>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class='bx bx-data'></i> İşlem Geçmişi</h2>
+                <span id="closeHistoryModal" class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Dil</th>
+                            <th>Tarih</th>
+                            <th>Kod (Özet)</th>
+                            <th>Çıktı</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-content auth-modal-content">
+            <div class="modal-header">
+                <h2><i class='bx bx-log-in-circle'></i> Giriş Yap</h2>
+                <span id="closeLoginModal" class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label><i class='bx bx-user'></i> Kullanıcı Adı</label>
+                        <input type="text" id="loginUsername" required placeholder="Kullanıcı adınız">
+                    </div>
+                    <div class="form-group">
+                        <label><i class='bx bx-lock-alt'></i> Şifre</label>
+                        <input type="password" id="loginPassword" required placeholder="Şifreniz">
+                    </div>
+                    <button type="submit" class="submit-btn">Giriş Yap</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal">
+        <div class="modal-content auth-modal-content">
+            <div class="modal-header">
+                <h2><i class='bx bx-user-plus'></i> Kayıt Ol</h2>
+                <span id="closeRegisterModal" class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="registerForm" class="auth-form">
+                    <div class="form-group">
+                        <label><i class='bx bx-user'></i> Kullanıcı Adı Seçin</label>
+                        <input type="text" id="regUsername" required placeholder="Örn: kodluyoruz">
+                    </div>
+                    <div class="form-group">
+                        <label><i class='bx bx-lock-alt'></i> Şifre Belirleyin</label>
+                        <input type="password" id="regPassword" required placeholder="Güçlü bir şifre">
+                    </div>
+                    <button type="submit" class="submit-btn register-submit">Kayıt Ol</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
+
+    <script src="script.js"></script>
+</body>
+</html>

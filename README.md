@@ -1,47 +1,63 @@
-Cloud Compiler: Bulut Tabanlı Kod Derleme Sistemi
-Bu proje, kullanıcıların herhangi bir yerel kurulum yapmadan tarayıcı üzerinden kod yazıp derleyebilmelerini sağlayan SaaS (Software as a Service) tabanlı bir web uygulamasıdır. Sistem, kodları güvenli ve izole bir ortamda çalıştırmak için sanallaştırma teknolojilerini kullanır.
+# Cloud Compiler: Bulut Tabanlı Kod Derleme Sistemi
 
-Temel Özellikler
-Çoklu Dil Desteği: Python 3.9, C (GCC) ve Web Teknolojileri (HTML/CSS/JS) desteği.
+Bu proje, kullanıcıların yerel bilgisayarlarına herhangi bir derleyici veya geliştirme ortamı kurmadan, tarayıcı üzerinden kod yazıp çalıştırabilmelerini sağlayan bir SaaS (Software as a Service) çözümüdür. Sistem, kod güvenliğini ve kaynak izolasyonunu sağlamak amacıyla Docker konteyner teknolojisi üzerine inşa edilmiştir.
 
-Güvenli Yürütme: Sunucu tarafında çalıştırılan kodlar (Python ve C), Docker konteynerleri içerisinde ana sistemden tamamen izole edilir.
+## Proje Hakkında
 
-Web Önizleme: HTML, CSS ve JavaScript kodları için sunucuya yük bindirmeden tarayıcı tabanlı (Client-Side) anlık önizleme sunar.
+Cloud Compiler, özellikle eğitim ve hızlı prototipleme süreçleri için tasarlanmıştır. Kullanıcı tarafından gönderilen kodlar, sunucu tarafında anlık olarak oluşturulan sanal ortamlarda derlenir. Bu yaklaşım, "Bulut Bilişim" ve "Sanallaştırma" prensiplerini temel alarak, donanım bağımsız ve güvenli bir kodlama deneyimi sunar.
 
-Kullanıcı Yönetimi: Üyelik sistemi sayesinde kullanıcılar giriş yapabilir ve geçmişte çalıştırdıkları kodları kayıt altında tutabilir.
+## Temel Özellikler
 
-Mobil Uyumluluk: Responsive tasarım sayesinde mobil cihazlardan da kod yazımı ve derleme işlemi yapılabilir.
+* **Çoklu Dil Desteği:** Python 3.9, C (GCC) ve Web (HTML/CSS/JS) dillerini destekler.
+* **İzole Çalışma Ortamı:** Her kod parçacığı, ana sunucudan yalıtılmış geçici Docker konteynerlerinde çalıştırılır.
+* **Web Önizleme:** Web teknolojileri için sunucu yükü oluşturmadan istemci taraflı (Client-Side) anlık render işlemi yapar.
+* **Kullanıcı Yönetimi:** Üyelik sistemi ile kullanıcıların geçmiş kod çalıştırma kayıtları veritabanında saklanır.
+* **Responsive Arayüz:** CodeMirror entegrasyonu ile mobil ve masaüstü cihazlarda tam uyumlu kod editörü deneyimi sunar.
 
-Kullanılan Teknolojiler ve Mimari
-Proje, modern web teknolojileri ve konteynerizasyon altyapısı üzerine inşa edilmiştir.
+## Kullanılan Teknolojiler
 
-Backend (Sunucu Tarafı)
-Node.js & Express: REST API yapısı ve asenkron sunucu yönetimi.
+Proje mimarisi aşağıdaki teknoloji yığını (Tech Stack) kullanılarak geliştirilmiştir:
 
-Child Process: Sistem komutlarını yürüterek Docker ile iletişim kurma.
+### Backend ve Sunucu
+* **Node.js & Express:** Uygulamanın REST API altyapısını ve asenkron istek yönetimini sağlar.
+* **Child Process:** Sunucu ile Docker motoru arasındaki komut iletişimini yönetir.
 
-Sanallaştırma (Virtualization)
-Docker: Kodların çalıştırılması için geçici ve izole ortamlar (Container) sağlar.
+### Sanallaştırma ve Güvenlik
+* **Docker:** Kodların çalıştırılması için gerekli sanal ortamı sağlar.
+* **Alpine Linux:** Python ve C derleyicileri için minimum kaynak tüketen, hafif Linux dağıtımları tercih edilmiştir.
+* **Güvenlik Protokolleri:**
+    * Network Isolation: Konteynerlerin internet erişimi kapatılmıştır.
+    * Resource Limiting: Her işlem için RAM ve CPU kullanımı sınırlandırılmıştır.
+    * Auto-Destruction: İşlemi biten konteynerler otomatik olarak imha edilir.
 
-Alpine Linux: Python ve GCC imajları için minimum boyutlu Linux dağıtımı kullanılarak performans optimize edilmiştir.
+### Veritabanı
+* **SQLite:** Kullanıcı kimlik bilgileri ve işlem loglarının tutulması için dosya tabanlı, hafif ilişkisel veritabanı.
 
-Güvenlik: Konteynerler internet erişimi kısıtlanmış (--network none) ve bellek limitli (-m 128m) olarak çalıştırılır.
+### Frontend
+* **HTML5 / CSS3 / JavaScript:** Kullanıcı arayüzü ve API entegrasyonu.
+* **CodeMirror:** Tarayıcı tabanlı gelişmiş kod editörü bileşeni.
 
-Veritabanı
-SQLite: Kullanıcı bilgileri (hashlenmiş parolalar) ve kod çalışma geçmişini (Logs) saklamak için dosya tabanlı ilişkisel veritabanı.
+## Kurulum ve Çalıştırma
 
-Frontend (İstemci Tarafı)
-HTML5, CSS3, JavaScript: Arayüz tasarımı ve API iletişimi.
+Projeyi yerel ortamda çalıştırmak için sisteminizde Node.js ve Docker Desktop uygulamasının kurulu olması gerekmektedir.
 
-CodeMirror: Tarayıcı içinde sözdizimi vurgulama (syntax highlighting) ve kod düzenleme özellikleri sağlayan editör kütüphanesi.
+1.  **Bağımlılıkları Yükleyin:**
+    Proje dizininde terminali açarak gerekli paketleri indirin.
+    ```bash
+    npm install
+    ```
 
-Kurulum ve Çalıştırma (Local)
-Projeyi kendi bilgisayarınızda çalıştırmak için Node.js ve Docker Desktop kurulu olmalıdır.
+2.  **Uygulamayı Başlatın:**
+    Sunucuyu ayağa kaldırın.
+    ```bash
+    node server.js
+    ```
 
-Proje dosyalarını indirin ve terminali proje dizininde açın.
+3.  **Erişim:**
+    Tarayıcınızdan aşağıdaki adrese giderek uygulamayı kullanabilirsiniz.
+    `http://localhost:3000`
 
-Gerekli Node.js paketlerini yükleyin: npm install
+## Proje Sahibi
 
-Uygulamayı başlatın: node server.js
-
-Tarayıcıdan şu adrese gidin: http://localhost:3000
+* **Geliştirici:** [Adınız Soyadınız]
+* **Bölüm:** Bilişim Sistemleri Mühendisliği
